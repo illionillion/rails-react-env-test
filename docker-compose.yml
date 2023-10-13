@@ -1,0 +1,38 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    platform: linux/amd64
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_ROOT_PASSWORD: pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    command: bash -c "bundle install && rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0' && rails db:create"
+    volumes:
+      - ./backend/myapp:/myapp
+    tty: true
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+  
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    volumes:
+      - ./frontend/myapp:/myapp
+    command: sh -c "npm run dev"
+    tty: true
+    ports:
+      - 3001:5173
