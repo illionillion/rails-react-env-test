@@ -1,10 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState<number>(0)
+
+  const testFetch = async () => {
+    const response = await fetch('http://localhost:3000/api/v1/message')
+    const json = await response.json()
+    console.log(json);
+  }
+
+  useEffect(() => {
+    testFetch()
+  }, [])
 
   return (
     <>
